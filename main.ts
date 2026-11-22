@@ -75,15 +75,17 @@ for (const name of shots) {
 }
 
 // Build dossier byte-for-byte as required by the judge and gate
+const startTime = Date.now();
 const dossierJson = buildDossier(out, {
   text_max_bytes: TEXT_MAX_BYTES,
   screenshots: SCREENSHOT_CAPS,
   dashboard: { max_files: 400, max_bytes: 4_194_304 },
 });
+const buildWallMs = Date.now() - startTime;
 
 writeFileSync(join(out, 'dossier.json'), dossierJson);
 
 process.stdout.write(
   `token radar: successfully scored ${board.length} pre-token protocols (${snapshot.watchlist.length} watchlist + ${radar.early_size} early discovery)\n` +
-  `token radar: verified all 7 scorer gates; wrote board.json, data.js, dashboard, screenshots, and dossier.json (${Buffer.byteLength(dossierJson)} bytes)\n`
+  `token radar: verified all 7 scorer gates; wrote board.json, data.js, dashboard, screenshots, and dossier.json (${Buffer.byteLength(dossierJson)} bytes in ${buildWallMs}ms)\n`
 );
