@@ -97,6 +97,32 @@ body {
   background: var(--emerald-glow);
 }
 
+/* Integrity & Gate Audit Banner */
+.integrity-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #090e1a;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 14px;
+}
+.integrity-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.integrity-pill strong {
+  color: #fff;
+}
+.check-icon {
+  color: var(--emerald);
+  font-weight: 800;
+}
+
 /* KPI Strip */
 .kpi-strip {
   display: grid;
@@ -403,6 +429,65 @@ body {
 .badge-accumulate { background: var(--cyan-glow); color: var(--cyan); border: 1px solid var(--cyan); }
 .badge-selective { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid #475569; }
 .badge-monitor { background: rgba(244, 63, 94, 0.1); color: var(--coral); border: 1px solid var(--coral); }
+
+/* Farm Verdict Badges (Criterion 3) */
+.verdict-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.verdict-pill.strong {
+  background: var(--emerald-glow);
+  color: var(--emerald);
+  border: 1px solid var(--emerald);
+}
+.verdict-pill.accumulate {
+  background: var(--cyan-glow);
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+}
+.verdict-pill.selective {
+  background: rgba(148, 163, 184, 0.1);
+  color: #cbd5e1;
+  border: 1px solid #475569;
+}
+.verdict-pill.monitor {
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--coral);
+  border: 1px solid var(--coral);
+}
+
+.playbook-btn {
+  background: #0f172a;
+  border: 1px solid var(--border-subtle);
+  color: var(--cyan);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.playbook-btn:hover {
+  background: var(--cyan-glow);
+  border-color: var(--cyan);
+}
+
+.exclusion-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: rgba(244, 63, 94, 0.1);
+  color: var(--coral);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
 
 .action-inspect-btn {
   background: #0f172a;
