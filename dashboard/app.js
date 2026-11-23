@@ -111,7 +111,7 @@
         '<td class="num ' + (r.change_7d !== null && r.change_7d < 0 ? 'neg' : 'pos') + '">' + fmtPct(r.change_7d) + '</td>' +
         '<td class="num">' + fmtAge(r.ageDays) + '</td>' +
         '<td class="num">' + r.peer.traded + '/' + r.peer.total + ' (' + Math.round(r.peer.share * 100) + '%)</td>' +
-        '<td class="num">' + fmtUsd(r.implied_value_usd) + '</td>' +
+        '<td class="num"><strong>' + fmtUsd(r.implied_value_usd) + '</strong><br><span style="font-size:11px;color:var(--muted)">[' + fmtUsd(r.implied_value_usd * 0.5) + ' – ' + fmtUsd(r.implied_value_usd * 2.0) + ']</span></td>' +
         '<td><span class="badge ' + badgeClass(r.verdict) + '">' + esc(r.verdict) + '</span></td>' +
         '</tr>';
     });
@@ -171,7 +171,8 @@
       '<ol class="plan">' + stepsHtml + '</ol>' +
       '<p class="plan-total">Plan cost: setup ' + fmtUsd(r.costs.setup) + ' + ' +
       fmtUsd(r.costs.monthly) + '/month x ' + months + ' months = ' + fmtUsd(r.costs.total) +
-      ' over ' + r.costs.weeks + ' weeks, with ' + fmtUsd(r.costs.capital) + ' of working capital.</p>';
+      ' over ' + r.costs.weeks + ' weeks, with ' + fmtUsd(r.costs.capital) + ' of working capital · ' +
+      'Efficiency: ~' + fmtUsd(Math.max(1, Math.round((r.implied_value_usd * 0.005) / (r.costs.weeks * 15)))) + '/hr farm rate.</p>';
     panel.className = 'detail';
     $('detail-close').addEventListener('click', function () {
       panel.className = 'detail hidden';

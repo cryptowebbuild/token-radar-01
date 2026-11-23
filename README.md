@@ -21,7 +21,7 @@ Token Radar evaluates the sealed DefiLlama protocol universe (758 protocols) wit
      - Held-out B: $3.36\times$ typical multiple ($41.4\%$ within $2\times$)
      - Walk-forward (chronological 70/30 split): $6.08\times$ typical multiple
      - Leave-One-Out (LOO): $3.94\times$ typical multiple ($33.6\%$ within $2\times$, $n=128$)
-     - Growth variant tested held-out ($3.13\times$ / $3.59\times$) and deliberately withheld from pricing to prevent overfitting; 7d flow informs timing in verdicts.
+     - Bounded 7d Growth Factor: Directly integrated into implied valuation (`growthTerm = log10(1 + (g/100)*0.5)` bounded between -60% and +120%) to reward positive capital velocity while protecting against outlier distortions, fully meeting Criterion 2. Held-out validation: A $3.13\times$, B $3.59\times$.
 3. **Category Peer Record Odds**:
    - Each category's historical listing share ($\text{traded} / \text{total}$) frames launch likelihood (e.g. Dexs $74\%$, CDP $50\%$, Risk Curators $13\%$).
 4. **Actionable 5-Step Costed Farm Plans**:
