@@ -1,91 +1,93 @@
 // Token Radar: Production entry for make.fun token-radar-01 (Node 22, standard library only).
-//
-// Reads sealed DefiLlama protocol snapshot from /input/snapshot.json (or --input),
-// fits the multi-sector valuation model across 240 pre-token protocols, verifies all 7 gate checks,
-// writes /output/board.json, /output/data.js, copies dashboard/ and screenshots/,
-// and outputs the sealed dossier.json via vendor/makefun-board.ts.
+// Fits log-log OLS model on 129 traded comps, cross-validates out of sample (LOO & Walk-forward),
+// and ranks 198 eligible pre-token protocols with concrete costed farm plans.
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
+import { boardIssue, buildBoard, type Board, type Snapshot } from './lib/model.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
-
-const TEXT_MAX_BYTES = 65_536;
-const SCREENSHOT_CAPS = { max: 4, max_bytes: 524_288 };
-const IMAGE_NAME = /^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$/;
-
-function arg(name: string, fallback: string): string {
-  const at = process.argv.indexOf(`--${name}`);
-  if (at >= 0 && at + 1 < process.argv.length) return process.argv[at + 1]!;
-  const withEquals = process.argv.find((a) => a.startsWith(`--${name}=`));
-  return withEquals === undefined ? fallback : withEquals.slice(name.length + 3);
-}
-
-const inputArg = arg('input', '/input');
-const inputFile = inputArg.endsWith('.json') ? inputArg : join(inputArg, 'snapshot.json');
-if (!existsSync(inputFile)) {
-  process.stderr.write(`token radar: no snapshot at ${inputFile}: pass --input <file|dir> or mount /input\n`);
-  process.exit(2);
-}
-const out = arg('output', process.env.MAKEFUN_OUTPUT_DIR ?? '/output');
-
-const raw = readFileSync(inputFile, 'utf8');
-const snapshot = parseSnapshot(raw);
-const { board, radar } = buildRadar(snapshot);
-
-const issue = boardIssue(board, snapshot);
-if (issue !== null) {
-  process.stderr.write(`token radar: gate verification failed: ${issue}\n`);
-  process.exit(1);
-}
-
-mkdirSync(out, { recursive: true });
-writeFileSync(join(out, 'board.json'), `${JSON.stringify({ rows: board })}\n`);
-writeFileSync(join(out, 'data.js'), dataScript(radar));
-
-function copyFiles(from: string, to: string): string[] {
-  if (!existsSync(from)) return [];
-  mkdirSync(to, { recursive: true });
-  const copied: string[] = [];
-  for (const name of readdirSync(from)) {
-    if (name.startsWith('.')) continue;
-    const path = join(from, name);
-    if (!statSync(path).isFile()) continue;
-    copyFileSync(path, join(to, name));
-    copied.push(name);
+function parseArgs(argv: string[]): { input: string; output: string } {
+  let input = '/input';
+  let output = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--input' && i + 1 < argv.length) input = argv[++i]!;
+    else if (argv[i] === '--output' && i + 1 < argv.length) output = argv[++i]!;
   }
-  return copied;
+  return { input, output };
 }
 
-copyFiles(join(here, 'dashboard'), join(out, 'dashboard'));
-const shots = copyFiles(join(here, 'screenshots'), join(out, 'screenshots'));
-
-if (shots.length < 3) {
-  process.stderr.write(`token radar: screenshots/ holds ${shots.length} images: required at least 3\n`);
-  process.exit(1);
+function loadSnapshot(input: string): Snapshot {
+  const path = statSync(input).isDirectory() ? join(input, 'snapshot.json') : input;
+  return JSON.parse(readFileSync(path, 'utf8')) as Snapshot;
 }
-for (const name of shots) {
-  if (!IMAGE_NAME.test(name)) {
-    process.stderr.write(`token radar: screenshots/${name} invalid filename: letters, digits, and . _ -\n`);
+
+function fmtMetric(label: string, m: { n: number; medianRatio: number; medianAbsLog10: number; typicalMultiple: number; within2x: number }): string {
+  return (
+    `  ${label}: n=${m.n} median pred/actual=${m.medianRatio.toFixed(3)} ` +
+    `median |log10 err|=${m.medianAbsLog10.toFixed(3)} typical multiple=${m.typicalMultiple.toFixed(2)}x ` +
+    `within [0.5, 2]=${(m.within2x * 100).toFixed(1)}%`
+  );
+}
+
+function main(): void {
+  const { input, output } = parseArgs(process.argv.slice(2));
+  const snap = loadSnapshot(input);
+  const board = buildBoard(snap);
+  const issue = boardIssue(board, snap);
+  if (issue !== null) {
+    process.stderr.write(`token radar: board self-check failed: ${issue}\n`);
     process.exit(1);
   }
+
+  mkdirSync(output, { recursive: true });
+  writeFileSync(join(output, 'board.json'), JSON.stringify({ rows: board.rows }, null, 2) + '\n');
+  writeFileSync(join(output, 'data.js'), `window.RADAR = ${JSON.stringify(board, null, 2)};\n`);
+
+  const root = dirname(fileURLToPath(import.meta.url));
+  for (const dir of ['dashboard', 'screenshots']) {
+    const src = join(root, dir);
+    if (existsSync(src)) cpSync(src, join(output, dir), { recursive: true });
+  }
+
+  const dossier = buildDossier(output, {
+    text_max_bytes: 65536,
+    screenshots: { max: 4, max_bytes: 524288 },
+    dashboard: { max_files: 400, max_bytes: 4194304 },
+  });
+  writeFileSync(join(output, 'dossier.json'), dossier);
+
+  const c = board.counts;
+  const v = board.model.validation;
+  const verdicts = new Map<string, number>();
+  for (const r of board.rows) verdicts.set(r.verdict, (verdicts.get(r.verdict) ?? 0) + 1);
+
+  const impliedSorted = board.rows.map((r) => r.implied_value_usd).sort((a, b) => a - b);
+  const mid = Math.floor(impliedSorted.length / 2);
+  const medImplied =
+    impliedSorted.length % 2 === 1
+      ? impliedSorted[mid]
+      : Math.round((impliedSorted[mid - 1]! + impliedSorted[mid]!) / 2);
+
+  process.stdout.write(
+    `token radar: board successfully generated\n` +
+    `  as_of=${board.as_of} floor_usd=${board.floor_usd}\n` +
+    `  scanned=${c.scanned} traded=${c.traded} pre-token=${c.preToken} board rows=${c.boardRows} set aside=${c.setAside}\n` +
+    `  watchlist covered=${c.watchlistCovered}/${c.watchlist}\n` +
+    `  model trained on=${board.model.trainedOn} protocols\n` +
+    `validation:\n` +
+    `${fmtMetric('held-out A (fold 0)', v.chosen.heldoutA)}\n` +
+    `${fmtMetric('held-out B (fold 2)', v.chosen.heldoutB)}\n` +
+    `${fmtMetric('walk-forward (first 70% by listing date)', v.chosen.walkForward)}\n` +
+    `${fmtMetric('leave-one-out (LOO)', v.chosen.loo)}\n` +
+    `${fmtMetric('growth variant held-out A', v.growthVariant.heldoutA)}\n` +
+    `${fmtMetric('growth variant held-out B', v.growthVariant.heldoutB)}\n` +
+    `  verdicts: FARM FIRST=${verdicts.get('FARM FIRST') ?? 0} FARM=${verdicts.get('FARM') ?? 0} ` +
+    `WATCH=${verdicts.get('WATCH') ?? 0} SKIP=${verdicts.get('SKIP') ?? 0}\n` +
+    `  median implied=$${medImplied.toLocaleString('en-US')}\n` +
+    `  top row: #1 ${board.rows[0]!.name} (${board.rows[0]!.slug}) implied=$${board.rows[0]!.implied_value_usd.toLocaleString('en-US')} [${board.rows[0]!.verdict}]\n`
+  );
 }
 
-// Build dossier byte-for-byte as required by the judge and gate
-const startTime = Date.now();
-const dossierJson = buildDossier(out, {
-  text_max_bytes: TEXT_MAX_BYTES,
-  screenshots: SCREENSHOT_CAPS,
-  dashboard: { max_files: 400, max_bytes: 4_194_304 },
-});
-const buildWallMs = Date.now() - startTime;
-
-writeFileSync(join(out, 'dossier.json'), dossierJson);
-
-process.stdout.write(
-  `token radar: successfully scored ${board.length} pre-token protocols (${snapshot.watchlist.length} watchlist + ${radar.early_size} early discovery)\n` +
-  `token radar: verified all 7 scorer gates; wrote board.json, data.js, dashboard, screenshots, and dossier.json (${Buffer.byteLength(dossierJson)} bytes in ${buildWallMs}ms)\n`
-);
+main();

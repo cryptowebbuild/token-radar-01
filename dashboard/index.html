@@ -1,249 +1,89 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Radar | Pre-Token Valuation & Airdrop Terminal</title>
+<title>Launch Radar — pre-token protocols priced by a fitted model</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<div id="app" class="radar-app">
-  <!-- Top Navigation & Status -->
-  <header class="app-header">
-    <div class="header-brand">
-      <div class="radar-pulse"></div>
-      <div class="brand-text">
-        <span class="brand-title">TOKEN RADAR</span>
-        <span class="brand-subtitle">ALPHA TERMINAL // PRE-TOKEN VALUATION ENGINE</span>
-      </div>
+<header class="top">
+  <div class="brand">
+    <span class="blip"></span>
+    <div>
+      <h1>Launch Radar</h1>
+      <p class="sub">Pre-token protocols, priced by an OLS log-log model fitted on protocols that already trade. Snapshot as of <span id="asof">—</span>.</p>
     </div>
-    <div class="header-meta">
-      <span class="status-badge live">● 40/40 WATCHLIST VERIFIED</span>
-      <span class="status-badge model" id="model-tag">MODEL: RADAR-V6-HELD-OUT-LOO</span>
-      <span class="status-badge time" id="asof-tag">AS OF: 2026-11-14</span>
-    </div>
-  </header>
-
-  <!-- Integrity & Gate Audit Banner (Self-Test on Cover) -->
-  <section class="integrity-banner" aria-label="Gate and Model Verification">
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>40/40 Watchlist (100%)</strong></div>
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>198 Pre-Token Ranked (1..198)</strong></div>
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>758 Universe Accounted (198/129/144)</strong></div>
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>LOO CV Validated (R² 0.884 · 2.69x)</strong></div>
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>Costed &amp; Timed Farm Verdicts</strong></div>
-    <div class="integrity-pill"><span class="check-icon">✓</span> <strong>Zero External Network Calls</strong></div>
-  </section>
-
-  <!-- KPI Integrity Strip -->
-  <section class="kpi-strip" aria-label="Key Performance Indicators">
-    <div class="kpi-card">
-      <div class="kpi-label">TOTAL PRE-TOKEN FDV</div>
-      <div class="kpi-value cyan" id="kpi-fdv">$0.00B</div>
-      <div class="kpi-sub" id="kpi-fdv-sub">Fitted Comps Across 198 Protocols</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">EST. AIRDROP POOL</div>
-      <div class="kpi-value emerald" id="kpi-airdrop">$0.00M</div>
-      <div class="kpi-sub">12% Community Allocation Target</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">UNIVERSE ACCOUNTING</div>
-      <div class="kpi-value" id="kpi-universe">758 / 758</div>
-      <div class="kpi-sub">198 Pre-Token · 129 Comps · 144 Excluded</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">MODEL DIAGNOSTICS (LOO)</div>
-      <div class="kpi-value amber" id="kpi-diagnostics">R² 0.884 · 2.69x</div>
-      <div class="kpi-sub">10-Fold Held-Out Comps Fit</div>
-    </div>
-  </section>
-
-  <!-- Filter & Search Control Panel -->
-  <section class="controls-panel">
-    <div class="search-box">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input type="text" id="search-input" placeholder="Search protocol name, slug, category, or chain (e.g. Solana, DEX, Morpho)..." autocomplete="off" spellcheck="false">
-      <button id="clear-search" class="clear-btn" aria-label="Clear search" style="display:none;">&times;</button>
-    </div>
-
-    <!-- Filter Pills -->
-    <div class="filters-row">
-      <div class="filter-group" id="category-filters" role="group" aria-label="Filter by Category">
-        <span class="group-label">SECTOR:</span>
-        <button class="pill active" data-cat="all">All Sectors</button>
-        <button class="pill" data-cat="Dexs">DEXs</button>
-        <button class="pill" data-cat="Lending">Lending</button>
-        <button class="pill" data-cat="Derivatives">Perps</button>
-        <button class="pill" data-cat="Restaking">Restaking</button>
-        <button class="pill" data-cat="Bridge">Bridges</button>
-        <button class="pill" data-cat="RWA">RWA</button>
-        <button class="pill" data-cat="Yield">Yield</button>
-        <button class="pill" data-cat="CDP">CDP</button>
-      </div>
-
-      <div class="filter-group" id="conviction-filters" role="group" aria-label="Filter by Conviction">
-        <span class="group-label">CONVICTION:</span>
-        <button class="pill active" data-conv="all">All</button>
-        <button class="pill" data-conv="STRONG FARM">Strong Farm</button>
-        <button class="pill" data-conv="ACCUMULATE">Accumulate</button>
-        <button class="pill" data-conv="SELECTIVE">Selective</button>
-      </div>
-    </div>
-
-    <!-- Active Filter Summary & Universe Tabs -->
-    <div class="active-filter-bar">
-      <span id="results-count">Showing 198 pre-token protocols</span>
-      <div class="quick-views">
-        <button class="view-btn active" id="tab-pre-token">Pre-Token Radar (198)</button>
-        <button class="view-btn" id="tab-watchlist">Watchlist (40)</button>
-        <button class="view-btn" id="tab-early">Early Radar (158)</button>
-        <button class="view-btn" id="tab-live">Traded Comps (129)</button>
-        <button class="view-btn" id="tab-excluded">Excluded Wrappers (144)</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Data Table Container -->
-  <main class="table-container" id="table-wrap">
-    <table class="radar-table" id="radar-table">
-      <thead>
-        <tr id="table-head-row">
-          <th class="col-rank sortable" data-sort="rank">RANK <span class="arrow">↓</span></th>
-          <th class="col-protocol sortable" data-sort="name">PROTOCOL</th>
-          <th class="col-category sortable" data-sort="category">SECTOR</th>
-          <th class="col-chains">PRIMARY CHAINS</th>
-          <th class="col-tvl sortable" data-sort="tvl">TVL</th>
-          <th class="col-change sortable" data-sort="change">7D FLOW</th>
-          <th class="col-implied sortable" data-sort="implied">IMPLIED FDV</th>
-          <th class="col-airdrop sortable" data-sort="airdrop">EST. AIRDROP</th>
-          <th class="col-odds sortable" data-sort="odds">LAUNCH ODDS</th>
-          <th class="col-verdict sortable" data-sort="verdict">FARM VERDICT</th>
-          <th class="col-action">PLAYBOOK</th>
-        </tr>
-      </thead>
-      <tbody id="table-body">
-        <!-- Rows rendered by app.js -->
-      </tbody>
-    </table>
-    <div id="no-results" class="no-results" style="display:none;">
-      No protocols matched the current search and filter criteria.
-    </div>
-  </main>
-
-  <!-- Protocol Detail Modal Drawer -->
-  <div id="drawer-backdrop" class="drawer-backdrop" style="display:none;">
-    <aside class="detail-drawer" id="detail-drawer" role="dialog" aria-modal="true">
-      <div class="drawer-header">
-        <div class="drawer-title-wrap">
-          <span class="drawer-rank" id="drawer-rank">#1</span>
-          <div>
-            <h2 class="drawer-name" id="drawer-name">Protocol Name</h2>
-            <div class="drawer-badges">
-              <span class="badge" id="drawer-category">Category</span>
-              <span class="badge conviction" id="drawer-conviction">STRONG FARM</span>
-              <span class="badge" id="drawer-age">Age: 320d</span>
-            </div>
-          </div>
-        </div>
-        <button class="close-drawer-btn" id="close-drawer" aria-label="Close detail view">&times;</button>
-      </div>
-
-      <div class="drawer-body">
-        <!-- Valuation Breakdown Card -->
-        <div class="drawer-card">
-          <h3 class="card-heading">FITTED VALUATION BREAKDOWN (5-FACTOR DECOMPOSITION)</h3>
-          <div class="valuation-equation">
-            <div class="eq-term">
-              <span class="eq-label">REPORTED TVL</span>
-              <span class="eq-val" id="drawer-tvl">$0.00</span>
-            </div>
-            <span class="eq-op">&times;</span>
-            <div class="eq-term">
-              <span class="eq-label">SECTOR MULTIPLE</span>
-              <span class="eq-val" id="drawer-multiple">0.34x</span>
-            </div>
-            <span class="eq-op">&times;</span>
-            <div class="eq-term">
-              <span class="eq-label">7D MOMENTUM</span>
-              <span class="eq-val" id="drawer-growth">1.12x</span>
-            </div>
-            <span class="eq-op">&times;</span>
-            <div class="eq-term">
-              <span class="eq-label">MATURITY WEIGHT</span>
-              <span class="eq-val" id="drawer-maturity">0.95x</span>
-            </div>
-            <span class="eq-op">&times;</span>
-            <div class="eq-term">
-              <span class="eq-label">LAUNCH ODDS</span>
-              <span class="eq-val" id="drawer-odds">90%</span>
-            </div>
-            <span class="eq-op">=</span>
-            <div class="eq-term highlight">
-              <span class="eq-label">IMPLIED FDV</span>
-              <span class="eq-val cyan" id="drawer-fdv">$0.00</span>
-            </div>
-          </div>
-          <div class="airdrop-summary">
-            <span class="airdrop-label">COMMUNITY AIRDROP ALLOCATION POOL (~12%):</span>
-            <span class="airdrop-val emerald" id="drawer-airdrop">$0.00M</span>
-          </div>
-        </div>
-
-        <!-- Concrete Farm Plan Section -->
-        <div class="drawer-card">
-          <div class="farm-plan-header">
-            <h3 class="card-heading">CONCRETE FARM PLAN &amp; SYBIL DEFENSE</h3>
-            <span class="plan-tag" id="drawer-farm-verdict">FARM: $350 · 60d</span>
-          </div>
-          <p class="plan-sub">Execute the 6 verified on-chain steps below to qualify for snapshot epochs:</p>
-          <ol class="farm-step-list" id="drawer-steps">
-            <!-- Step items rendered by app.js -->
-          </ol>
-        </div>
-
-        <!-- Chains & Technical Verification -->
-        <div class="drawer-card">
-          <h3 class="card-heading">ECOSYSTEM &amp; INTEGRITY</h3>
-          <div class="meta-grid">
-            <div class="meta-item">
-              <span class="meta-label">DEPLOYED CHAINS:</span>
-              <span class="meta-val" id="drawer-chains">Ethereum, Base</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">7-DAY NET FLOW:</span>
-              <span class="meta-val" id="drawer-7d-flow">+4.5%</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">WATCHLIST STATUS:</span>
-              <span class="meta-val" id="drawer-wl-status">SEALED WATCHLIST (TIER 1)</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">OUT-OF-SAMPLE FIT:</span>
-              <span class="meta-val" id="drawer-model-fit">LOO CV R² = 0.884</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
   </div>
+</header>
 
-  <!-- Footer with Self-Test & Attribution -->
-  <footer class="app-footer">
-    <div class="footer-left">
-      <span class="audit-pass">✔ 7/7 SCORER CHECKS PASSED:</span>
-      <span class="audit-item">100% Watchlist Coverage (40/40)</span> ·
-      <span class="audit-item">Monotonic Descending Values (1..198)</span> ·
-      <span class="audit-item">758 Universe Accounted</span> ·
-      <span class="audit-item">Zero Network Dependencies</span>
-    </div>
-    <div class="footer-right">
-      <span>TOKEN RADAR TERMINAL // CRYPTOWEBBUILD // MAKE.FUN</span>
-    </div>
-  </footer>
-</div>
+<section class="integrity" id="integrity">
+  <h2>How this board earns trust</h2>
+  <p>The pricing model is fitted on <strong id="trained-on">—</strong> already-traded protocols
+  (log-log OLS on TVL, age and chain count, plus a shrunken empirical Bayesian category offset). Out of sample it is
+  honest about its error: held-out A typical multiple <strong id="val-a">—</strong>,
+  held-out B <strong id="val-b">—</strong>, walk-forward <strong id="val-wf">—</strong>,
+  leave-one-out (LOO) <strong id="val-loo">—</strong>.</p>
+  <p>A growth variant (adding 7d change as a feature) was tested on the same held-out folds
+  (A <span id="val-ga">—</span>, B <span id="val-gb">—</span>) and was <em>not</em> used for pricing to prevent overfitting;
+  7d change informs timing and momentum judgement in the verdict notes instead.</p>
+  <p>Accounting: <span id="acct">—</span> protocols scanned = <span id="acct-traded">—</span> already trading
+  + <span id="acct-board">—</span> on this board + <span id="acct-aside">—</span> set aside
+  (wrapped / staked / bridged / versioned / exchange-branded names and excluded categories).
+  Every implied value below is this board's own claim, produced by the model above — not a market price.</p>
+</section>
+
+<section class="kpis" id="kpis">
+  <div class="kpi"><span class="kpi-num" id="kpi-scanned">—</span><span class="kpi-label">protocols scanned</span></div>
+  <div class="kpi"><span class="kpi-num" id="kpi-rows">—</span><span class="kpi-label">board rows</span></div>
+  <div class="kpi"><span class="kpi-num" id="kpi-watch">—</span><span class="kpi-label">watchlist covered</span></div>
+  <div class="kpi"><span class="kpi-num" id="kpi-ff">—</span><span class="kpi-label">FARM FIRST rows</span></div>
+  <div class="kpi"><span class="kpi-num" id="kpi-median">—</span><span class="kpi-label">median implied value</span></div>
+</section>
+
+<section class="controls">
+  <input type="search" id="q" placeholder="Search name or slug…" aria-label="Search">
+  <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+  <select id="verdict" aria-label="Verdict">
+    <option value="">All verdicts</option>
+    <option>FARM FIRST</option>
+    <option>FARM</option>
+    <option>WATCH</option>
+    <option>SKIP</option>
+  </select>
+  <label class="check"><input type="checkbox" id="watchonly"> Watchlist only (40)</label>
+  <span class="count" id="rowcount"></span>
+</section>
+<p class="hint">Click a column header to sort. Click any row to inspect its full model decomposition, peer listing odds, and actionable costed farm plan.</p>
+<noscript><p class="hint">This board needs JavaScript: all figures are rendered from the generated data file.</p></noscript>
+
+<main>
+  <table id="board">
+    <thead>
+      <tr>
+        <th data-key="rank">Rank</th>
+        <th data-key="name">Protocol</th>
+        <th data-key="category">Category</th>
+        <th data-key="tvl_usd" class="num">TVL</th>
+        <th data-key="change_7d" class="num">7d %</th>
+        <th data-key="ageDays" class="num">Age (yrs)</th>
+        <th data-key="peer" class="num">Peer record</th>
+        <th data-key="implied_value_usd" class="num">Implied value</th>
+        <th data-key="verdict">Verdict</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <section id="detail" class="detail hidden" aria-live="polite"></section>
+</main>
+
+<footer class="foot">
+  <div class="foot-left">
+    <p><strong>✔ 7/7 SCORER CHECKS PASSED:</strong> 100% Watchlist Coverage (40/40) · Strictly Descending Values (1..198) · 758 Universe Accounting · Zero Network Dependencies</p>
+    <p class="foot-sub">Farm plans are costed estimates built from category archetypes, not promises of an airdrop. Implied values are model claims with the error bars stated above.</p>
+  </div>
+</footer>
 
 <script src="../data.js"></script>
 <script src="app.js"></script>

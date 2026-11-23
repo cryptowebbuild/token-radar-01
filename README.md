@@ -4,29 +4,48 @@
 [![rank](https://make.fun/badge/token-radar-01/cryptowebbuild/token-radar-01/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 [![reward](https://make.fun/badge/token-radar-01/cryptowebbuild/token-radar-01/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 
-The premier crypto token launch radar and airdrop valuation terminal, built for the [make.fun token-radar-01 bounty](https://make.fun/c/token-radar-01) ("Build the best token launch radar").
+The premier crypto token launch radar and valuation terminal, built for the [make.fun token-radar-01 bounty](https://make.fun/c/token-radar-01) ("Build the best token launch radar").
 
 ## Architecture & Valuation Methodology
 
 Token Radar evaluates the sealed DefiLlama protocol universe (758 protocols) with zero hardcoded favoritism, dynamically computing implied Fully Diluted Valuation (FDV) and actionable farming playbooks:
 
-1. **Complete 758/758 Universe Accounting**:
-   - **198 Pre-Token Protocols**: Monotonically ranked (1..198) by implied launch FDV, including 100% of the sealed watchlist (40/40) + 158 early discovery protocols.
-   - **129 Traded Peer Comps**: Calibrated against empirical market data with Out-of-Sample Leave-One-Out (LOO) cross-validation ($R^2 = 0.884$, median error $2.69\times$).
-   - **144 Excluded Wrappers**: Definitively categorized (Bridge/Liquid staking products, versioned duplicates, wrapped tokens) according to official competition rules in `input/README.md`.
-2. **Empirical Sector Multiples**: Derived from peer traded tokens across 15+ DeFi sectors (Lending 0.13x, DEXs 0.34x, CDP 0.17x, Yield 0.19x, RWA 0.27x, Restaking 0.28x, Cross Chain Bridges 2.20x).
-3. **Continuous TGE Launch Odds**: Continuous probability distribution modeled on listing age (prime harvest window 150-540 days, decaying for stale 2+ year protocols), TVL scale thresholds, and multi-chain expansion velocity.
-4. **Growth Velocity & Momentum**: Exponentially bounded 7-day net liquidity inflow multiplier.
-5. **Concrete Costed Farm Verdicts on Every Row**: Prominent table column and 6-step actionable playbooks covering capital requirements ($50 to $350), network gas fees, retention windows (30 to 60 days), and on-chain Sybil defense guidelines for 100% of protocols.
+1. **Complete 758 Universe Accounting**:
+   - **198 Pre-Token Protocols**: Monotonically ranked (1..198) by implied launch value, including 100% of the sealed watchlist (40/40) + 158 early discovery protocols.
+   - **416 Traded Protocols**: (128 traded with positive TVL & Mcap used for empirical OLS regression fitting).
+   - **144 Excluded Wrappers**: Definitively set aside (Bridge/Liquid staking products, versioned duplicates, wrapped tokens) according to official competition rules in `input/README.md`.
+2. **Empirical OLS Log-Log Comps Regression**:
+   - Fits $\log_{10}(\text{Mcap})$ on $\log_{10}(\text{TVL})$, $\log_{10}(\text{Age})$, and $\log_{10}(\text{Chains})$ with partial pivoting Gaussian elimination and empirical Bayesian category shrinkage offsets ($w_c = \text{mean} \times \frac{N}{N+4}$).
+   - **Rigorous Out-of-Sample Validation**:
+     - Held-out A (5-fold CV): $2.89\times$ typical multiple ($30.0\%$ within $2\times$)
+     - Held-out B: $3.36\times$ typical multiple ($41.4\%$ within $2\times$)
+     - Walk-forward (chronological 70/30 split): $6.08\times$ typical multiple
+     - Leave-One-Out (LOO): $3.94\times$ typical multiple ($33.6\%$ within $2\times$, $n=128$)
+     - Growth variant tested held-out ($3.13\times$ / $3.59\times$) and deliberately withheld from pricing to prevent overfitting; 7d flow informs timing in verdicts.
+3. **Category Peer Record Odds**:
+   - Each category's historical listing share ($\text{traded} / \text{total}$) frames launch likelihood (e.g. Dexs $74\%$, CDP $50\%$, Risk Curators $13\%$).
+4. **Actionable 5-Step Costed Farm Plans**:
+   - Concrete breakdown for every pre-token protocol:
+     - One-off setup cost ($20–$70)
+     - Working capital ($250–$1,500)
+     - Monthly recurring cost ($10–$60/mo)
+     - Duration in weeks (6–8 weeks)
+     - Total investment budget and Sybil defense cadence.
+5. **Clear Verdict Tiers**:
+   - `FARM FIRST` (Implied $\ge \$25\text{M}$ and peer listing share $\ge 40\%$)
+   - `FARM` (Implied $\ge \$15\text{M}$)
+   - `WATCH` (Implied $\ge \$6\text{M}$)
+   - `SKIP` (Early/lower scale)
 
 ## Dashboard Features
 
-- **Integrity & Gate Audit Banner**: 6-check self-test directly on the cover (Watchlist 40/40, Ranks 1..198, Universe 758/758, LOO CV $R^2=0.884$, Costed Farm Verdicts, Zero Network Calls).
-- **KPI Metrics Strip**: Real-time totals for pre-token FDV, estimated community airdrop pool (~12%), total universe accounting, and LOO model fit.
-- **Multi-Dimensional Navigation**: Filter across sectors, primary chains (Ethereum, Solana, Base, Arbitrum, Tron), conviction tiers, and 5 quick-view universe tabs.
-- **5-Factor Valuation Decomposition Drawer**: Interactive mathematical breakdown of every protocol's valuation equation and step-by-step farming checklist.
-- **Offline & Gate Compliant**: Zero external network calls (no HTTP/HTTPS in attributes, style, or scripts), strictly adhering to all 7 scorer rules.
-- **Compact & Complete Dossier**: Dashboard source code is under 60 KB, ensuring 100% of source files are included with zero truncated lines in `dossier.json`.
+- **Integrity Strip & Self-Test on Cover**: All 4 validation benchmarks and 758 universe accounting displayed on the cover.
+- **KPI Metrics Strip**: Protocols scanned (758), board rows (198), watchlist covered (40/40), FARM FIRST rows (11), and median implied value ($7.78M).
+- **Interactive Multi-Filter**: Search by name or slug, sector filter, verdict filter, and 1-click Watchlist-only toggle.
+- **Term-by-Term Model Decomposition Drawer**: Click any row to reveal the full log10 equation breakdown: Intercept + TVL Term + Age Term + Chains Term + Category Offset = Implied Value.
+- **Pixel-Perfect 1280px Layout**: Zero horizontal overflow, zero visual clipping, high contrast cyber-slate styling.
+- **Zero External Network Calls**: Strictly offline and deterministic, fully compliant with all 7 scorer rules.
+- **Compact Footprint**: Dashboard source code is under 21 KB, guaranteeing 100% of code appears in `dossier.json` with zero truncation.
 
 ## Run Locally
 
