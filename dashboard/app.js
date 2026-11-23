@@ -141,7 +141,7 @@
     var panel = $('detail');
     if (!r) { panel.className = 'detail hidden'; panel.innerHTML = ''; return; }
     var t = r.terms;
-    var sum = t.intercept + t.tvlTerm + t.ageTerm + t.chainsTerm + t.catOffset;
+    var sum = t.intercept + t.tvlTerm + t.ageTerm + t.chainsTerm + (t.growthTerm || 0) + t.catOffset;
     var months = Math.ceil(r.costs.weeks / 4);
     var stepsHtml = r.farm_steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('');
     panel.innerHTML =
@@ -156,6 +156,7 @@
       '<div class="term"><div class="t-label">Intercept</div><div class="t-val">' + t.intercept.toFixed(3) + '</div></div>' +
       '<div class="term"><div class="t-label">TVL term</div><div class="t-val">' + t.tvlTerm.toFixed(3) + '</div></div>' +
       '<div class="term"><div class="t-label">Age term</div><div class="t-val">' + t.ageTerm.toFixed(3) + '</div></div>' +
+      '<div class="term"><div class="t-label">7d Growth term</div><div class="t-val">' + (t.growthTerm >= 0 ? '+' : '') + t.growthTerm.toFixed(3) + '</div></div>' +
       '<div class="term"><div class="t-label">Chains term</div><div class="t-val">' + t.chainsTerm.toFixed(3) + '</div></div>' +
       '<div class="term"><div class="t-label">Category offset</div><div class="t-val">' + t.catOffset.toFixed(3) + '</div></div>' +
       '<div class="term"><div class="t-label">Sum → implied</div><div class="t-val">' + sum.toFixed(3) + ' → ' + fmtUsd(r.implied_value_usd) + '</div></div>' +

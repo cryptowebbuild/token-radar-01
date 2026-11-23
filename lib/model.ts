@@ -377,7 +377,7 @@ export interface BoardRow {
   ageDays: number | null;
   watchlist: boolean;
   peer: PeerRec;
-  terms: { intercept: number; tvlTerm: number; ageTerm: number; chainsTerm: number; catOffset: number };
+  terms: { intercept: number; tvlTerm: number; ageTerm: number; chainsTerm: number; growthTerm: number; catOffset: number };
   implied_value_usd: number;
   verdict: string;
   costs: Costs;
@@ -420,11 +420,22 @@ export function buildBoard(snap: Snapshot): Board {
   for (const p of snap.protocols) {
     if (!isEligible(p)) continue;
     const peer = peerFor(p.category, table);
-    const implied = Math.max(1, Math.round(predict(p, model, ctx)));
-    const verdict = verdictFor(implied, peer.share);
-    const costs = costsFor(p);
     const age = ageDays(p, snap.as_of);
     const f = feats(p, ctx, false);
+    const g = clip(p.change_7d === null ? ctx.medChg : p.change_7d, -60, 120);
+    const growthMult = 1 + (g / 100) * 0.5;
+    const growthTerm = Math.log10(growthMult);
+    const catOffset = model.offsets[p.category] ?? 0;
+    const logImplied =
+      model.weights[0] +
+      model.weights[1] * f[1] +
+      model.weights[2] * f[2] +
+      model.weights[3] * f[3] +
+      growthTerm +
+      catOffset;
+    const implied = Math.max(1, Math.round(Math.pow(10, logImplied)));
+    const verdict = verdictFor(implied, peer.share);
+    const costs = costsFor(p);
     rows.push({
       slug: p.slug,
       name: p.name,
@@ -441,7 +452,8 @@ export function buildBoard(snap: Snapshot): Board {
         tvlTerm: model.weights[1] * f[1],
         ageTerm: model.weights[2] * f[2],
         chainsTerm: model.weights[3] * f[3],
-        catOffset: model.offsets[p.category] ?? 0,
+        growthTerm,
+        catOffset,
       },
       implied_value_usd: implied,
       verdict,
