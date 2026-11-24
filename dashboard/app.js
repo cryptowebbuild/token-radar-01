@@ -4,7 +4,7 @@
   if (!R) return;
   var rows = R.rows;
   var model = R.model;
-  var state = { q: '', cat: '', verdict: '', watch: false, key: 'rank', dir: 1 };
+  var state = { q: '', cat: '', verdict: '', watch: false, tier1: false, key: 'rank', dir: 1 };
   var compareSlugs = [];
 
   function $(id) { return document.getElementById(id); }
@@ -174,6 +174,7 @@
       if (state.cat && r.category !== state.cat) return false;
       if (state.verdict && r.verdict !== state.verdict) return false;
       if (state.watch && !r.watchlist) return false;
+      if (state.tier1 && !r.tier1_watchlist) return false;
       if (q && r.name.toLowerCase().indexOf(q) === -1 && r.slug.toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
@@ -198,7 +199,7 @@
       html += '<tr data-slug="' + esc(r.slug) + '" class="' + (isComp ? 'comparing' : '') + '">' +
         '<td>' + r.rank + '</td>' +
         '<td><span class="name">' + esc(r.name) + '</span>' +
-        (r.watchlist ? '<span class="wl">watchlist</span>' : '') +
+        (r.watchlist ? '<span class="wl">watchlist</span>' : (r.tier1_watchlist ? '<span class="wl" style="background:#0284c7;color:#fff;border-color:#0284c7">tier-1</span>' : '')) +
         '<br><span class="slug">' + esc(r.slug) + '</span></td>' +
         '<td>' + esc(r.category) + '</td>' +
         '<td class="num">' + fmtUsd(r.tvl_usd) + '</td>' +
@@ -218,6 +219,7 @@
   catSel.addEventListener('change', function (e) { state.cat = e.target.value; render(); });
   $('verdict').addEventListener('change', function (e) { state.verdict = e.target.value; render(); });
   $('watchonly').addEventListener('change', function (e) { state.watch = e.target.checked; render(); });
+  $('tier1only').addEventListener('change', function (e) { state.tier1 = e.target.checked; render(); });
 
   var ths = document.querySelectorAll('#board th');
   ths.forEach(function (th) {

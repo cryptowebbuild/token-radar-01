@@ -1,6 +1,6 @@
 // Token Radar: Production entry for make.fun token-radar-01 (Node 22, standard library only).
 // Fits log-log OLS model on 129 traded comps, cross-validates out of sample (LOO & Walk-forward),
-// and ranks 198 eligible pre-token protocols with concrete costed farm plans.
+// and ranks 262 eligible pre-token protocols with concrete costed farm plans.
 
 import { cpSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

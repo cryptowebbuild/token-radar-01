@@ -270,24 +270,19 @@ export function peerFor(
 }
 
 const EXCLUDED_CATS = new Set([
-  'Bridge',
   'Canonical Bridge',
-  'Liquid Staking',
-  'Liquid Restaking',
-  'Restaked BTC',
   'CEX',
 ]);
 const VERSION_RE = /\s(V\d+(\.\d+)?|v\d+(\.\d+)?|\d+\.\d+)$/;
-const DERIV_WORD_RE = /\b(wrapped|staked|staking)\b/i;
 const EXCHANGE_PREFIXES = ['Binance', 'Coinbase', 'Bybit', 'Kraken', 'Bitget', 'OKX', 'Bitfinex', 'Gemini'];
 
 export function asideReason(p: Proto): string | null {
   if (EXCLUDED_CATS.has(p.category)) return `excluded category: ${p.category}`;
   if (VERSION_RE.test(p.name)) return 'versioned product name';
-  if (DERIV_WORD_RE.test(p.name)) return 'wrapped or staked derivative name';
   for (const pre of EXCHANGE_PREFIXES) {
     if (p.name.startsWith(pre)) return 'exchange-branded product';
   }
+  if (p.name === 'Wrapped' || p.name === 'WBTC' || p.name.startsWith('Wrapped Bitcoin')) return 'wrapped token pool';
   return null;
 }
 
@@ -313,6 +308,16 @@ const ARCHETYPES: Record<string, { setup: number; monthly: number; weeks: number
   'Onchain Capital Allocator': { setup: 30, monthly: 12, weeks: 8, capital: 750 },
   CDP: { setup: 35, monthly: 15, weeks: 8, capital: 1000 },
   'Basis Trading': { setup: 45, monthly: 40, weeks: 6, capital: 1500 },
+  Bridge: { setup: 35, monthly: 20, weeks: 6, capital: 500 },
+  'Cross Chain Bridge': { setup: 35, monthly: 20, weeks: 6, capital: 500 },
+  'Liquid Staking': { setup: 25, monthly: 10, weeks: 8, capital: 500 },
+  'Liquid Restaking': { setup: 30, monthly: 15, weeks: 8, capital: 750 },
+  Restaking: { setup: 30, monthly: 15, weeks: 8, capital: 750 },
+  'Restaked BTC': { setup: 30, monthly: 15, weeks: 8, capital: 1000 },
+  'Staking Pool': { setup: 25, monthly: 10, weeks: 8, capital: 500 },
+  RWA: { setup: 40, monthly: 15, weeks: 8, capital: 1000 },
+  Chain: { setup: 30, monthly: 15, weeks: 8, capital: 500 },
+  'Yield Aggregator': { setup: 25, monthly: 10, weeks: 8, capital: 500 },
 };
 const DEFAULT_ARCH = { setup: 20, monthly: 10, weeks: 6, capital: 250 };
 
@@ -332,6 +337,16 @@ const ACTIVITY: Record<string, string> = {
   'Onchain Capital Allocator': 'allocate into the managed strategies and follow the allocation reports',
   CDP: 'open a collateral position and mint against it within safe ratios',
   'Basis Trading': 'run delta-neutral basis positions across spot and perpetuals',
+  Bridge: 'bridge native assets between supported networks on a regular weekly cadence',
+  'Cross Chain Bridge': 'route volume through the cross-chain router between target L1 and L2 chains',
+  'Liquid Staking': 'stake underlying assets into the protocol and hold yield-bearing receipt tokens',
+  'Liquid Restaking': 'deposit liquid staking tokens to secure active validation services and accumulate points',
+  Restaking: 'delegate native tokens to actively validated services on the restaking layer',
+  'Restaked BTC': 'deposit native or wrapped BTC into Bitcoin restaking vaults to earn restaking yields',
+  'Staking Pool': 'stake network tokens into validator pools and compound rewards',
+  RWA: 'complete KYC/onboarding if required and deposit into tokenized treasury or private credit vaults',
+  Chain: 'bridge funds to the native network, deploy contracts, and interact with the ecosystem dApps',
+  'Yield Aggregator': 'route assets into optimal yield auto-compounding vaults',
 };
 
 export function fmtUsd(n: number): string {
@@ -376,6 +391,7 @@ export interface BoardRow {
   change_7d: number | null;
   ageDays: number | null;
   watchlist: boolean;
+  tier1_watchlist: boolean;
   peer: PeerRec;
   terms: { intercept: number; tvlTerm: number; ageTerm: number; chainsTerm: number; growthTerm: number; catOffset: number };
   implied_value_usd: number;
@@ -395,6 +411,7 @@ export interface Board {
     setAside: number;
     watchlist: number;
     watchlistCovered: number;
+    tier1Watchlist: number;
   };
   model: {
     trainedOn: number;
@@ -446,6 +463,7 @@ export function buildBoard(snap: Snapshot): Board {
       change_7d: p.change_7d,
       ageDays: age,
       watchlist: watch.has(p.slug),
+      tier1_watchlist: watch.has(p.slug) || (p.tvl_usd !== null && p.tvl_usd >= 75_000_000),
       peer,
       terms: {
         intercept: model.weights[0],
@@ -485,6 +503,7 @@ export function buildBoard(snap: Snapshot): Board {
       setAside: setAside.length,
       watchlist: snap.watchlist.length,
       watchlistCovered: covered,
+      tier1Watchlist: rows.filter((r) => r.tier1_watchlist).length,
     },
     model: {
       trainedOn: train.length,

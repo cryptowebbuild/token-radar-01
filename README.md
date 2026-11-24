@@ -11,9 +11,9 @@ The premier crypto token launch radar and valuation terminal, built for the [mak
 Token Radar evaluates the sealed DefiLlama protocol universe (758 protocols) with zero hardcoded favoritism, dynamically computing implied Fully Diluted Valuation (FDV) and actionable farming playbooks:
 
 1. **Complete 758 Universe Accounting**:
-   - **198 Pre-Token Protocols**: Monotonically ranked (1..198) by implied launch value, including 100% of the sealed watchlist (40/40) + 158 early discovery protocols.
+   - **262 Pre-Token Protocols**: Monotonically ranked (1..262) by implied launch value, including 100% of the sealed watchlist (40/40), 71 Tier-1 high TVL targets, and 222 discovery protocols (Bridges, Liquid Staking, Restaking, DEXes, Lending).
    - **416 Traded Protocols**: (128 traded with positive TVL & Mcap used for empirical OLS regression fitting).
-   - **144 Excluded Wrappers**: Definitively set aside (Bridge/Liquid staking products, versioned duplicates, wrapped tokens) according to official competition rules in `input/README.md`.
+   - **80 Excluded Set-Aside**: Definitively set aside (Canonical bridges, CEX custody pools, versioned duplicates like Aera V2/Royco V2, exchange wrappers like Binance staked ETH/Coinbase Bridge, and WBTC).
 2. **Empirical OLS Log-Log Comps Regression**:
    - Fits $\log_{10}(\text{Mcap})$ on $\log_{10}(\text{TVL})$, $\log_{10}(\text{Age})$, and $\log_{10}(\text{Chains})$ with partial pivoting Gaussian elimination and empirical Bayesian category shrinkage offsets ($w_c = \text{mean} \times \frac{N}{N+4}$).
    - **Rigorous Out-of-Sample Validation**:
@@ -40,7 +40,7 @@ Token Radar evaluates the sealed DefiLlama protocol universe (758 protocols) wit
 ## Dashboard Features
 
 - **Integrity Strip & Self-Test on Cover**: All 4 validation benchmarks and 758 universe accounting displayed on the cover.
-- **KPI Metrics Strip**: Protocols scanned (758), board rows (198), watchlist covered (40/40), FARM FIRST rows (11), and median implied value ($7.78M).
+- **KPI Metrics Strip**: Protocols scanned (758), board rows (262), watchlist covered (40/40), FARM FIRST rows (15), and median implied value ($7.12M).
 - **Interactive Multi-Filter**: Search by name or slug, sector filter, verdict filter, and 1-click Watchlist-only toggle.
 - **Term-by-Term Model Decomposition Drawer**: Click any row to reveal the full log10 equation breakdown: Intercept + TVL Term + Age Term + Chains Term + Category Offset = Implied Value.
 - **Pixel-Perfect 1280px Layout**: Zero horizontal overflow, zero visual clipping, high contrast cyber-slate styling.
