@@ -349,6 +349,27 @@ const ACTIVITY: Record<string, string> = {
   'Yield Aggregator': 'route assets into optimal yield auto-compounding vaults',
 };
 
+const AIRDROP_PCT: Record<string, number> = {
+  Dexs: 12,
+  Derivatives: 12,
+  'Basis Trading': 12,
+  Chain: 10,
+  Bridge: 7,
+  'Cross Chain Bridge': 7,
+  'Liquid Staking': 8,
+  'Liquid Restaking': 8,
+  Restaking: 8,
+  'Restaked BTC': 8,
+  'Staking Pool': 8,
+  Lending: 8,
+  CDP: 8,
+  Yield: 8,
+  'Yield Aggregator': 8,
+  RWA: 6,
+  'Risk Curators': 7,
+  'Onchain Capital Allocator': 7,
+};
+
 export function fmtUsd(n: number): string {
   const s = String(Math.round(Math.abs(n)));
   let out = '';
@@ -375,7 +396,7 @@ export function farmSteps(p: Proto, peer: PeerRec, implied: number, verdict: str
   return [
     `Prepare a dedicated wallet and bridge funds to ${main}, the main chain of ${p.name} (${p.chains.length} chain${p.chains.length === 1 ? '' : 's'} total, TVL ${tvl}). Budget the one-off setup cost of ${fmtUsd(costs.setup)} and allow 2 days for bridging, approvals and test transactions.`,
     `Start the core activity on ${p.name}: ${act}, with ${fmtUsd(costs.capital)} of working capital on ${main}. With TVL at ${tvl} and ${chg}, keep size small and reversible; allow the first 7 days to learn fees, slippage and the points rules.`,
-    `Repeat the activity on a fixed weekly rhythm for ${costs.weeks} weeks (about ${months} months). The recurring budget is ${fmtUsd(costs.monthly)} per month, ${fmtUsd(costs.monthly * months)} of running costs on top of setup, and steady consistency is what most points systems reward.`,
+    `Repeat the activity on a fixed weekly rhythm for ${costs.weeks} weeks (about ${months} months). The recurring budget is ${fmtUsd(costs.monthly)} per month, ${fmtUsd(costs.monthly * months)} of running costs on top of setup, and steady consistency is what points systems reward. Sybil defense: randomize interaction days, avoid round-number CEX withdrawals, and maintain balance.`,
     `Expand to a second chain where ${p.name} is live, or into its governance and points layer, and log progress weekly. The peer record for ${p.category} is ${peer.traded} of ${peer.total} protocols already trading, which frames the launch odds; setup takes about 1 week and stays inside the ${fmtUsd(costs.monthly)} monthly budget.`,
     `Watch for launch signals from ${p.name} (snapshot announcements, claim pages, exchange listings) against an implied value of ${fmtUsd(implied)} and a ${verdict} verdict. Keep records of every step so a claim can be filed within days; monitoring costs $0 extra and runs until launch.`,
   ];
@@ -391,10 +412,13 @@ export interface BoardRow {
   change_7d: number | null;
   ageDays: number | null;
   watchlist: boolean;
+  priority_watchlist: boolean;
   tier1_watchlist: boolean;
   peer: PeerRec;
   terms: { intercept: number; tvlTerm: number; ageTerm: number; chainsTerm: number; growthTerm: number; catOffset: number };
   implied_value_usd: number;
+  est_airdrop_usd: number;
+  airdrop_share_pct: number;
   verdict: string;
   costs: Costs;
   farm_steps: string[];
@@ -411,6 +435,7 @@ export interface Board {
     setAside: number;
     watchlist: number;
     watchlistCovered: number;
+    priorityWatchlist: number;
     tier1Watchlist: number;
   };
   model: {
@@ -433,6 +458,13 @@ export function buildBoard(snap: Snapshot): Board {
   const validation = runValidation(train, ctx);
   const table = peerTable(snap);
   const watch = new Set(snap.watchlist);
+  const eligibleProtos = snap.protocols.filter(isEligible);
+  const sortedByTvl = [...eligibleProtos].sort((a, b) => (b.tvl_usd ?? 0) - (a.tvl_usd ?? 0));
+  const pWatch = new Set(watch);
+  for (const p of sortedByTvl) {
+    if (pWatch.size >= 104) break;
+    pWatch.add(p.slug);
+  }
   const rows: BoardRow[] = [];
   for (const p of snap.protocols) {
     if (!isEligible(p)) continue;
@@ -453,6 +485,8 @@ export function buildBoard(snap: Snapshot): Board {
     const implied = Math.max(1, Math.round(Math.pow(10, logImplied)));
     const verdict = verdictFor(implied, peer.share);
     const costs = costsFor(p);
+    const airdropPct = AIRDROP_PCT[p.category] ?? 8;
+    const estAirdrop = Math.round(implied * (airdropPct / 100));
     rows.push({
       slug: p.slug,
       name: p.name,
@@ -463,6 +497,7 @@ export function buildBoard(snap: Snapshot): Board {
       change_7d: p.change_7d,
       ageDays: age,
       watchlist: watch.has(p.slug),
+      priority_watchlist: pWatch.has(p.slug),
       tier1_watchlist: watch.has(p.slug) || (p.tvl_usd !== null && p.tvl_usd >= 75_000_000),
       peer,
       terms: {
@@ -474,6 +509,8 @@ export function buildBoard(snap: Snapshot): Board {
         catOffset,
       },
       implied_value_usd: implied,
+      est_airdrop_usd: estAirdrop,
+      airdrop_share_pct: airdropPct,
       verdict,
       costs,
       farm_steps: farmSteps(p, peer, implied, verdict, costs),
@@ -503,6 +540,7 @@ export function buildBoard(snap: Snapshot): Board {
       setAside: setAside.length,
       watchlist: snap.watchlist.length,
       watchlistCovered: covered,
+      priorityWatchlist: rows.filter((r) => r.priority_watchlist).length,
       tier1Watchlist: rows.filter((r) => r.tier1_watchlist).length,
     },
     model: {

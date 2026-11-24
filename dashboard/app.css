@@ -291,9 +291,154 @@ tbody tr.comparing { outline: 1px solid var(--blue); }
 .foot strong { color: var(--accent); }
 .foot-sub { margin-top: 4px; color: var(--gray); font-size: 12px; }
 
+/* Judge Criteria & Integrity Strip */
+.judge-audit-strip {
+  margin: 10px 32px 14px;
+  background: linear-gradient(135deg, rgba(47, 230, 168, 0.08) 0%, rgba(13, 20, 29, 0.95) 100%);
+  border: 1px solid rgba(47, 230, 168, 0.35);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.audit-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(47, 230, 168, 0.2);
+}
+.audit-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.audit-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.audit-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.audit-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: rgba(47, 230, 168, 0.2);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+.audit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+.audit-card {
+  background: rgba(17, 27, 39, 0.8);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+[data-theme="light"] .audit-card {
+  background: #f1f5f9;
+}
+.audit-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.audit-body {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text);
+}
+.audit-body strong {
+  color: #fff;
+}
+[data-theme="light"] .audit-body strong {
+  color: #0f172a;
+}
+
+/* Detail Tabs & Tab Panes */
+.detail-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  background: var(--panel2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tab-btn:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+.tab-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.tab-pane {
+  display: none;
+}
+.tab-pane.active {
+  display: block;
+}
+
+/* Step Table */
+.step-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+.step-table th {
+  background: var(--panel2);
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+.step-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: top;
+}
+[data-theme="light"] .step-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 body.detail-focus .integrity,
 body.detail-focus .kpis,
 body.detail-focus .sandbox-card,
+body.detail-focus .judge-audit-strip,
 body.detail-focus .hint { display: none; }
 body.detail-focus .detail { margin-top: 4px; }
 
