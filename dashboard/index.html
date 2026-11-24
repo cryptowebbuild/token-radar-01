@@ -3,187 +3,367 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Launch Radar — pre-token protocols priced by a fitted model</title>
+<title>Launch Radar — pre-token protocols, valued from their own record</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<header class="top">
-  <div class="brand">
-    <span class="blip"></span>
-    <div>
-      <h1>Launch Radar</h1>
-      <p class="sub">Pre-token protocols, priced by an OLS log-log model fitted on protocols that already trade. Snapshot as of <span id="asof">—</span>.</p>
-    </div>
-  </div>
-  <div class="palette-bar">
-    <span class="palette-label">Palette:</span>
-    <button class="palette-btn active" data-theme="dark">Cyber</button>
-    <button class="palette-btn" data-theme="terminal">Terminal</button>
-    <button class="palette-btn" data-theme="sapphire">Sapphire</button>
-    <button class="palette-btn" data-theme="light">Light</button>
-  </div>
-</header>
-
-<section class="judge-audit-strip" id="audit-strip">
-  <div class="audit-head">
-    <div class="audit-title-wrap">
-      <span class="audit-pulse"></span>
-      <span class="audit-title">EVALUATION AUDIT &amp; CRITERIA INTEGRITY STRIP</span>
-    </div>
-    <span class="audit-badge">5/5 CRITERIA PASSED WITH DISTINCTION</span>
-  </div>
-  <div class="audit-grid">
-    <div class="audit-card">
-      <div class="audit-tag">CRITERION 1: RADAR &amp; COVERAGE</div>
-      <div class="audit-body"><strong>104/104 Priority Watchlist (100% Floor)</strong> · 262 Pre-Token Rows · 1:1 Screenshot Truth</div>
-    </div>
-    <div class="audit-card">
-      <div class="audit-tag">CRITERION 2: EMPIRICAL VALUE MODEL</div>
-      <div class="audit-body"><strong>OLS Log-Log Fitted on 416 Traded Comps</strong> · 2x Held-Out Audited R²=0.74 · [0.5x, 2.0x] Bands · 0 Hardcoded</div>
-    </div>
-    <div class="audit-card">
-      <div class="audit-tag">CRITERION 3: ACTIONABLE FARM PLANS</div>
-      <div class="audit-body"><strong>Line-Item Step Costing ($)</strong> · Time Horizon (Wks) · Sybil Defense Rules · Min Capital &amp; Net ROI</div>
-    </div>
-    <div class="audit-card">
-      <div class="audit-tag">CRITERION 4: DASHBOARD APPLICATION</div>
-      <div class="audit-body"><strong>Tabbed Detail Dialog</strong> · Live Valuation Sandbox · Compare Mode · CSV Export · Instant Multi-Column Sort</div>
-    </div>
-    <div class="audit-card">
-      <div class="audit-tag">CRITERION 5: BESPOKE CRAFTSMANSHIP</div>
-      <div class="audit-body"><strong>Handcrafted Bloomberg Terminal UI</strong> · 4 Theme Palettes · High-Contrast Typography · Zero Framework Bloat</div>
-    </div>
-  </div>
-</section>
-
-<section class="integrity" id="integrity">
-  <h2>Model Specification &amp; Out-of-Sample Audit</h2>
-  <div class="equation-box">
-    log₁₀(Implied FDV) = 3.602 + 0.479·log₁₀(TVL) - 0.096·log₁₀(Age) + 0.086·log₁₀(Chains) + GrowthTerm + CategoryOffset
-  </div>
-  <p>The pricing model is fitted on <strong id="trained-on">—</strong> already-traded protocols
-  (log-log OLS on TVL, age, chain count, and bounded 7d growth, plus an empirical Bayesian category shrinkage offset).
-  Out of sample it is honest about its error: held-out A typical multiple <strong id="val-a">—</strong>,
-  held-out B <strong id="val-b">—</strong>, walk-forward <strong id="val-wf">—</strong>,
-  leave-one-out (LOO) <strong id="val-loo">—</strong>.</p>
-  <p>Criterion 2 compliance: 7-day TVL momentum is directly integrated into the valuation model
-  (<code>growthTerm = log10(1 + (g/100)*0.5)</code> bounded [-60%, +120%]), penalizing declining protocols while rewarding active capital expansion.
-  Validation on held-out folds: A <span id="val-ga">—</span>, B <span id="val-gb">—</span>.</p>
-  <p>Accounting: <span id="acct">—</span> protocols scanned = <span id="acct-traded">—</span> already trading
-  + <span id="acct-board">—</span> on this board + <span id="acct-aside">—</span> set aside
-  (wrapped / staked / bridged / versioned / exchange-branded names and excluded categories).
-  Every implied value below is this board's own claim, produced by the model above with honest [0.5x, 2.0x] prediction intervals.</p>
-</section>
-
-<section class="sandbox-card" id="sandbox">
-  <div class="sandbox-head">
-    <h3>⚡ Interactive Valuation Sandbox (Live Formula Explorer)</h3>
-    <button class="close-btn" id="sandbox-reset" style="float:none;">Reset to Default</button>
-  </div>
-  <div class="sandbox-grid">
-    <div class="slider-group">
-      <label><span>TVL ($USD)</span> <span class="slider-val" id="sb-tvl-txt">$250M</span></label>
-      <input type="range" id="sb-tvl" min="5" max="3000" step="5" value="250">
-    </div>
-    <div class="slider-group">
-      <label><span>7-Day Growth</span> <span class="slider-val" id="sb-growth-txt">+12.0%</span></label>
-      <input type="range" id="sb-growth" min="-60" max="120" step="1" value="12">
-    </div>
-    <div class="slider-group">
-      <label><span>Protocol Age</span> <span class="slider-val" id="sb-age-txt">1.5 yrs (550d)</span></label>
-      <input type="range" id="sb-age" min="30" max="1825" step="15" value="550">
-    </div>
-    <div class="slider-group">
-      <label><span>Chains Count</span> <span class="slider-val" id="sb-chains-txt">3 chains</span></label>
-      <input type="range" id="sb-chains" min="1" max="20" step="1" value="3">
-    </div>
-    <div class="slider-group">
-      <label><span>Category</span></label>
-      <select id="sb-cat"></select>
-    </div>
-  </div>
-  <div class="sandbox-result">
-    <div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;">Simulated Implied Valuation</div>
-      <div class="res-val" id="sb-res-val">$184,200,000</div>
-    </div>
-    <div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;">Verdict &amp; Band</div>
-      <div style="margin-top:2px;">
-        <span class="badge ff" id="sb-badge">FARM FIRST</span>
-        <span style="font-size:12px;color:var(--muted);margin-left:8px;" id="sb-band">[$92M – $368M]</span>
+<div class="app-wrap">
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="logo-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
+      </div>
+      <div>
+        <div class="title-row">
+          <h1>Launch Radar</h1>
+          <span class="version-tag">radar-3</span>
+        </div>
+        <p class="tagline">pre-token protocols, valued from their own record</p>
       </div>
     </div>
-    <div class="res-terms" id="sb-terms-txt">
-      terms: int=3.602, tvl=4.026, age=-0.263, chg=+0.025, chn=0.041, cat=+0.046 → sum=7.477
+    <div class="nav-meta">
+      DefiLlama snapshot <strong>2026-11-14</strong> · model <strong>radar-3</strong>, refitted in this browser
+    </div>
+  </header>
+
+  <!-- 6 Top KPI Cards -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Out-of-sample miss, walk-forward</div>
+      <div class="kpi-val">×2.53 <span class="kpi-vs">vs ×4.37 flat</span></div>
+      <div class="kpi-sub">a flat cap/TVL multiple misses by ×4.37; leave-one-out ×3.33 vs ×4.38</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Is the printed range honest?</div>
+      <div class="kpi-val">57% · 76%</div>
+      <div class="kpi-sub">of later-listed caps fall inside P25–P75 · P10–P90 (stated 50% · 80%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Token odds vs base rate, Brier</div>
+      <div class="kpi-val">0.215 <span class="kpi-vs">vs 0.320</span></div>
+      <div class="kpi-sub">walk-forward; 65% of later peers called right vs 34%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Terms that survived both tests</div>
+      <div class="kpi-val">2 of 6 · 4 of 5</div>
+      <div class="kpi-sub">value model · token odds; the rest are shown below, not used</div>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="kpi-label">Worth farming, this scenario</div>
+      <div class="kpi-val"><span id="kpi-farm-count">14</span> of 198</div>
+      <div class="kpi-sub">net beats a T-bill and $25 an hour; 159 marginal, 25 skip</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Watchlist ranked</div>
+      <div class="kpi-val">40 / 40</div>
+      <div class="kpi-sub">plus 158 pre-token protocols it leaves out</div>
+    </div>
+  </section>
+
+  <!-- Gold Formula Callout -->
+  <div class="formula-strip">
+    <strong>Implied value</strong> = TVL × fitted multiple (the value if a token launches) × token odds (from how long peers ran before recording one). Each coefficient is fitted on this snapshot and tested held-out.
+  </div>
+
+  <!-- Protocol Accounting Section -->
+  <section class="accounting-card">
+    <div class="acct-header">
+      <span class="acct-title">PROTOCOL ACCOUNTING</span>
+      <span class="acct-sub">all 758 snapshot protocols in exactly one group: 198 ranked as pre-token, 416 already record a token, 144 left out by the house list's own rules</span>
+    </div>
+    <div class="acct-bar">
+      <div class="seg seg-wl" style="width: 5.3%" title="Watchlist: 40"></div>
+      <div class="seg seg-early" style="width: 18.2%" title="Early: 138"></div>
+      <div class="seg seg-offlist" style="width: 2.6%" title="Off-List Parent: 20"></div>
+      <div class="seg seg-priced" style="width: 14.5%" title="Priced Comps: 110"></div>
+      <div class="seg seg-nocap" style="width: 40.4%" title="Token Recorded No Cap: 306"></div>
+      <div class="seg seg-bridge" style="width: 5.7%" title="Bridge: 43"></div>
+      <div class="seg seg-lsd" style="width: 5.7%" title="Liquid Staking: 43"></div>
+      <div class="seg seg-cex" style="width: 5.5%" title="Exchange: 42"></div>
+      <div class="seg seg-ver" style="width: 2.1%" title="Versioned/Wrapped: 16"></div>
+    </div>
+    <div class="acct-legend">
+      <span><i class="dot dot-wl"></i> Ranked · watchlist <strong>40</strong></span>
+      <span><i class="dot dot-early"></i> Ranked · early, below the floor <strong>138</strong></span>
+      <span><i class="dot dot-offlist"></i> Ranked · off-list, parent recorded <strong>20</strong></span>
+      <span><i class="dot dot-priced"></i> Token trades · priced comp <strong>110</strong></span>
+      <span><i class="dot dot-nocap"></i> Token recorded · no usable cap <strong>306</strong></span>
+      <span><i class="dot dot-bridge"></i> Out · bridge <strong>43</strong></span>
+      <span><i class="dot dot-lsd"></i> Out · liquid staking <strong>43</strong></span>
+      <span><i class="dot dot-cex"></i> Out · exchange <strong>42</strong></span>
+      <span><i class="dot dot-ver"></i> Out · versioned or wrapped <strong>16</strong></span>
+    </div>
+    <div class="acct-pills">
+      <span class="pill-badge">✔ this table = board.json: 198 of 198 rows recomputed here</span>
+      <span class="pill-badge">✔ ranks 1–198 in order, values never rise</span>
+      <span class="pill-badge">✔ totals equal: $1,521,754,662</span>
+      <span class="pill-badge">✔ checksum 16f88102 = main.ts</span>
+      <span class="pill-badge">✔ watchlist 40 of 40 ranked</span>
+      <span class="pill-badge">✔ ledger 758 of 758 protocols</span>
+    </div>
+  </section>
+
+  <!-- Out-of-Sample Evidence Box -->
+  <section class="evidence-card">
+    <div class="ev-header">
+      <span class="ev-title">OUT-OF-SAMPLE EVIDENCE</span>
+      <span class="ev-sub">a term is kept only if it lowers the held-out miss in both tests: leave-one-out, and walk-forward (tokens listed earlier price those listed later)</span>
+    </div>
+    <div class="ev-grid">
+      <!-- Section 1 -->
+      <div class="ev-col">
+        <div class="ev-col-title">Value if a token launches · typical miss, 98 traded tokens</div>
+        <table class="ev-table">
+          <thead><tr><th>TERM, ADDED IN ORDER</th><th>LEAVE-ONE-OUT</th><th>WALK-FORWARD</th></tr></thead>
+          <tbody>
+            <tr><td>flat median multiple</td><td>×4.38</td><td>×4.37 <span class="tag-base">baseline</span></td></tr>
+            <tr class="row-kept"><td>+ size curve, in TVL</td><td>×3.41</td><td>×2.62 <span class="tag-kept">kept</span></td></tr>
+            <tr><td>+ family effect · ridge 16</td><td>×2.95</td><td>×2.85 <span class="tag-tested">tested, not kept</span></td></tr>
+            <tr class="row-kept"><td>+ category effect · ridge 64</td><td>×3.33</td><td>×2.53 <span class="tag-kept">kept</span></td></tr>
+            <tr><td>+ 7-day TVL growth</td><td>×3.39</td><td>×2.74 <span class="tag-tested">tested, not kept</span></td></tr>
+            <tr><td>+ age, years listed</td><td>×3.15</td><td>×3.42 <span class="tag-tested">tested, not kept</span></td></tr>
+            <tr><td>+ chain count, ln</td><td>×3.43</td><td>×2.60 <span class="tag-tested">tested, not kept</span></td></tr>
+            <tr><td>+ control: growth of another row</td><td>×3.39</td><td>×2.79 <span class="tag-ctrl">must not help</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Section 2 -->
+      <div class="ev-col">
+        <div class="ev-col-title">Token odds · Brier score (share called right), 442 peers</div>
+        <table class="ev-table">
+          <thead><tr><th>TERM, ADDED IN ORDER</th><th>TEN-FOLD</th><th>WALK-FORWARD</th></tr></thead>
+          <tbody>
+            <tr><td>base rate of peers</td><td>0.248 (55%)</td><td>0.320 (34%) <span class="tag-base">baseline</span></td></tr>
+            <tr class="row-kept"><td>+ age, years listed</td><td>0.194 (70%)</td><td>0.227 (63%) <span class="tag-kept">kept</span></td></tr>
+            <tr class="row-kept"><td>+ family effect · ridge 16</td><td>0.192 (71%)</td><td>0.225 (64%) <span class="tag-kept">kept</span></td></tr>
+            <tr class="row-kept"><td>+ size curve, in TVL</td><td>0.188 (71%)</td><td>0.218 (64%) <span class="tag-kept">kept</span></td></tr>
+            <tr class="row-kept"><td>+ 7-day TVL growth</td><td>0.186 (72%)</td><td>0.215 (65%) <span class="tag-kept">kept</span></td></tr>
+            <tr><td>+ chain count, ln</td><td>0.186 (72%)</td><td>0.217 (65%) <span class="tag-tested">tested, not kept</span></td></tr>
+            <tr><td>+ control: growth of another row</td><td>0.187 (72%)</td><td>0.216 (65%) <span class="tag-ctrl">must not help</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Section 3 -->
+      <div class="ev-col">
+        <div class="ev-col-title">Is the printed range honest?</div>
+        <table class="ev-table">
+          <thead><tr><th>SHARE OF REAL CAPS</th><th>LEAVE-ONE-OUT</th><th>WALK-FORWARD</th></tr></thead>
+          <tbody>
+            <tr><td>within ×3 of the model</td><td>45%</td><td>55%</td></tr>
+            <tr class="row-kept"><td>inside P25–P75, stated 50%</td><td>49%</td><td>57%</td></tr>
+            <tr class="row-kept"><td>inside P10–P90, stated 80%</td><td>78%</td><td>76%</td></tr>
+          </tbody>
+        </table>
+        <div class="ev-stats-txt">
+          <strong>Fitted, ± bootstrap s.e. (200 refits):</strong> multiple at $100M TVL ×0.16; size slope -0.51 ± 0.10; category effects ×0.94 to ×1.07. Odds, in logits: years listed +0.64 ± 0.08, ln TVL +0.25 ± 0.08, 7-day growth -3.3 ± 1.3, families -0.28 to +0.20.
+        </div>
+      </div>
+    </div>
+    <div class="ev-footer-note">
+      Reading it: 7-day growth and age fail to price a token better, so the value model leaves them out; both help tell which peers record a token, so they enter through the odds. The odds are the peers' record (244 of 442 record a token, more with each year listed), not a forecast: the page never says a token will launch.
+    </div>
+  </section>
+
+  <!-- Filter & Controls Toolbar -->
+  <section class="toolbar">
+    <div class="filter-pills-row">
+      <button class="fpill active" data-filter="all">All 198</button>
+      <button class="fpill farm-pill" data-filter="farm">Farm 14</button>
+      <button class="fpill" data-filter="marginal">Marginal 159</button>
+      <button class="fpill" data-filter="skip">Skip 25</button>
+      <span class="fpill-sep"></span>
+      <button class="fpill active" data-tier="all">All tiers</button>
+      <button class="fpill" data-tier="watchlist">Watchlist</button>
+      <button class="fpill" data-tier="early">Early (&lt; $50.0M)</button>
+      <button class="fpill" data-tier="offlist">Off-list</button>
+    </div>
+
+    <div class="controls-row">
+      <div class="ctrl-group">
+        <label>Deposit</label>
+        <select id="sel-deposit">
+          <option value="plan" selected>plan size, 0.02% of TVL</option>
+          <option value="1000">$1,000</option>
+          <option value="3000">$3,000</option>
+          <option value="10000">$10,000</option>
+          <option value="30000">$30,000</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group slider-group">
+        <label>Drop share <strong id="val-dropshare">7.0%</strong></label>
+        <input type="range" id="sl-dropshare" min="1" max="25" step="0.5" value="7">
+      </div>
+
+      <div class="ctrl-group slider-group">
+        <label>Horizon <strong id="val-horizon">12 wk</strong></label>
+        <input type="range" id="sl-horizon" min="4" max="24" step="1" value="12">
+      </div>
+
+      <div class="ctrl-group search-group">
+        <input type="search" id="inp-search" placeholder="Search name, chain, category">
+      </div>
+
+      <div class="ctrl-group">
+        <select id="sel-cat"><option value="">All categories</option></select>
+      </div>
+
+      <div class="ctrl-group">
+        <select id="sel-chain"><option value="">All chains</option></select>
+      </div>
+
+      <button class="btn-tool" id="btn-reset">Reset</button>
+      <button class="btn-tool" id="btn-csv">CSV</button>
+      <button class="btn-tool" id="btn-json">JSON</button>
+    </div>
+
+    <div class="status-summary-bar">
+      <span id="active-filter-label" class="filter-status-label"></span>
+      <span class="board-totals" id="board-totals">198 of 198 rows · $20.71B TVL · $1.52B implied</span>
+    </div>
+  </section>
+
+  <!-- Main Board Table -->
+  <section class="table-container">
+    <table class="board-table" id="board-table">
+      <thead>
+        <tr>
+          <th style="width:28px;"><input type="checkbox" id="th-check-all"></th>
+          <th class="sortable" data-sort="rank" style="width:70px;"># · RANGE <span class="sort-arr">↑</span></th>
+          <th class="sortable" data-sort="name">PROTOCOL</th>
+          <th class="sortable text-right" data-sort="tvl">TVL</th>
+          <th class="sortable text-right" data-sort="7d">7D</th>
+          <th class="sortable text-right" data-sort="age">NO-TOKEN AGE</th>
+          <th class="sortable text-center" data-sort="odds">TOKEN ODDS</th>
+          <th class="sortable text-right" data-sort="launches">IF IT LAUNCHES</th>
+          <th class="sortable text-right" data-sort="implied">IMPLIED VALUE · P25–P75</th>
+          <th class="sortable text-center" data-sort="verdict">VERDICT · NET OF FEES</th>
+          <th class="sortable text-right" data-sort="netperhour">NET / HOUR</th>
+        </tr>
+      </thead>
+      <tbody id="board-tbody"></tbody>
+    </table>
+  </section>
+</div>
+
+<!-- Slide-Out / Modal Detail Drawer -->
+<div class="drawer-overlay hidden" id="drawer-overlay">
+  <div class="drawer-content" id="drawer-content">
+    <div class="drawer-nav">
+      <button class="btn-back" id="drawer-close">← Board</button>
+      <span class="drawer-nav-path">/ <span id="dr-nav-title">Yuzu Money</span></span>
+    </div>
+
+    <!-- Protocol Header -->
+    <div class="drawer-header-strip">
+      <div class="dr-head-left">
+        <div class="dr-rank-strap" id="dr-rank-strap">#41 of 198 by implied value · rank 36–46 across bootstrap refits</div>
+        <h2 class="dr-title" id="dr-title">Yuzu Money</h2>
+        <div class="dr-badges" id="dr-badges"></div>
+        <div class="dr-meta-stats">
+          <div><span class="lbl">TVL</span> <strong id="dr-tvl">$57.3M</strong></div>
+          <div><span class="lbl">7-day change</span> <strong id="dr-chg">-9.0%</strong></div>
+          <div><span class="lbl">Listed since</span> <strong id="dr-listed">2025-11-14</strong></div>
+          <div><span class="lbl">No-token age</span> <strong id="dr-age">1.0 yr</strong></div>
+        </div>
+      </div>
+      <div class="dr-head-right">
+        <div class="dr-implied-box">
+          <div class="dr-implied-lbl">IMPLIED VALUE · A MODEL ESTIMATE</div>
+          <div class="dr-implied-val" id="dr-implied-val">$9,327,282</div>
+          <div class="dr-implied-grid">
+            <div><span class="lbl">If a token launches</span> <strong id="dr-launches">$11.3M</strong></div>
+            <div><span class="lbl">Token odds</span> <strong id="dr-odds">82%</strong></div>
+            <div><span class="lbl">P25–P75</span> <strong id="dr-p2575">$2.8M–$32.0M</strong></div>
+            <div><span class="lbl">P10–P90</span> <strong id="dr-p1090">$778K–$81.0M</strong></div>
+          </div>
+          <div class="dr-implied-verify">
+            ✔ Recomputed in this browser: equals board.json. DefiLlama records no token for it, which is not proof it has none; the odds are its peers' record, not a forecast.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Two-Column Body -->
+    <div class="dr-body-grid">
+      <!-- Left Column: Math Decomposition & Peers -->
+      <div class="dr-col-left">
+        <div class="dr-card">
+          <h3 class="dr-card-title">HOW THE FIGURE IS MADE</h3>
+          <div class="decomp-list" id="dr-decomp-list"></div>
+        </div>
+
+        <div class="dr-card" style="margin-top:16px;">
+          <h3 class="dr-card-title">NEAREST PRICED PEERS · THEIR TOKENS TRADE</h3>
+          <table class="peers-table">
+            <thead>
+              <tr>
+                <th>TOKEN</th>
+                <th>CATEGORY</th>
+                <th class="text-right">TVL</th>
+                <th class="text-right">MARKET CAP</th>
+                <th class="text-right">CAP / TVL</th>
+                <th class="text-right">CAP / HELD-OUT MODEL</th>
+              </tr>
+            </thead>
+            <tbody id="dr-peers-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Farm Verdict, Benchmarks, Scenario Matrix & 10 Steps -->
+      <div class="dr-col-right">
+        <div class="dr-card dr-farm-card">
+          <div class="farm-card-head">
+            <span class="farm-card-title">FARM VERDICT</span>
+            <span class="verdict-tag" id="dr-verdict-tag">FARM</span>
+            <span class="farm-scenario-note">$10,000 deposit · 7.0% drop share · 12 weeks</span>
+          </div>
+
+          <p class="farm-narrative" id="dr-farm-narrative"></p>
+
+          <div class="farm-kpi-bar">
+            <div><span class="lbl">At risk</span> <strong id="dr-atrisk">$10,000</strong></div>
+            <div><span class="lbl">Fees, 12 weeks</span> <strong id="dr-fees">$2.95</strong></div>
+            <div><span class="lbl">Modelled drop</span> <strong id="dr-drop">$114</strong></div>
+            <div><span class="lbl">Net of fees</span> <strong class="green-txt" id="dr-net">$111</strong></div>
+            <div><span class="lbl">Hands-on</span> <strong id="dr-hours">3.4 h</strong></div>
+            <div><span class="lbl">Net per hour</span> <strong class="green-txt" id="dr-netrate">$32</strong></div>
+          </div>
+
+          <div class="matrix-bench-grid">
+            <div class="matrix-box">
+              <div class="matrix-title">Net by drop share × deposit <span class="matrix-hint">pick a cell</span></div>
+              <table class="scenario-table" id="dr-matrix-table"></table>
+            </div>
+
+            <div class="bench-box">
+              <div class="bench-title">Benchmarks</div>
+              <div class="bench-item"><span>Same $10,000 in a 4% T-bill, 12 weeks</span> <strong>$92</strong></div>
+              <div class="bench-item"><span>Drop if a token does launch (odds not applied)</span> <strong id="dr-bench-drop">$138</strong></div>
+              <div class="bench-item"><span>Fees covered above a drop share of</span> <strong>0.2%</strong></div>
+              <div class="bench-item"><span>Fees covered above token odds of</span> <strong>2%</strong></div>
+              <div class="bench-item"><span>Exit if TVL prints below (-17% in a week)</span> <strong id="dr-bench-exit">$47.6M</strong></div>
+            </div>
+          </div>
+          <div class="farm-calc-note">
+            Drop = implied value × drop share × deposit ÷ (TVL + deposit) = $9.3M × 7.0% × $10,000 ÷ $57.4M. FARM: the net beats the T-bill and $25 an hour; SKIP: fees exceed the drop. Yield earned meanwhile is left out.
+          </div>
+        </div>
+
+        <!-- 10 Step Farm Plan -->
+        <div class="dr-card" style="margin-top:16px;">
+          <div class="farm-card-head">
+            <span class="farm-card-title">FARM PLAN · 10 STEPS</span>
+            <span class="farm-scenario-note">cost and time at a $10,000 deposit</span>
+          </div>
+          <div class="steps-list" id="dr-steps-list"></div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
-
-<section class="compare-modal hidden" id="compare-modal">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <h3 style="margin:0;font-size:16px;color:var(--blue);font-weight:700;text-transform:uppercase;">Protocol Side-by-Side Comparison</h3>
-    <button class="close-btn" id="compare-close" style="float:none;">close</button>
-  </div>
-  <div class="compare-grid" id="compare-content"></div>
-</section>
-
-<section class="kpis" id="kpis">
-  <div class="kpi"><span class="kpi-num" id="kpi-scanned">758</span><span class="kpi-label">protocols scanned</span></div>
-  <div class="kpi"><span class="kpi-num" id="kpi-rows">262</span><span class="kpi-label">pre-token rows</span></div>
-  <div class="kpi"><span class="kpi-num" id="kpi-watch">104 / 104</span><span class="kpi-label">priority watchlist (100%)</span></div>
-  <div class="kpi"><span class="kpi-num" id="kpi-ff">—</span><span class="kpi-label">FARM FIRST rows</span></div>
-  <div class="kpi"><span class="kpi-num" id="kpi-airdrop">—</span><span class="kpi-label">est. airdrop pool</span></div>
-  <div class="kpi"><span class="kpi-num" id="kpi-median">—</span><span class="kpi-label">median implied value</span></div>
-</section>
-
-<section class="controls">
-  <input type="search" id="q" placeholder="Search name or slug…" aria-label="Search">
-  <select id="cat" aria-label="Category"><option value="">All categories</option></select>
-  <select id="verdict" aria-label="Verdict">
-    <option value="">All verdicts</option>
-    <option>FARM FIRST</option>
-    <option>FARM</option>
-    <option>WATCH</option>
-    <option>SKIP</option>
-  </select>
-  <label class="check"><input type="checkbox" id="pwatchonly"> Priority Watchlist (104)</label>
-  <label class="check"><input type="checkbox" id="watchonly"> Sealed Watchlist (40)</label>
-  <button class="btn-compare-toggle" id="btn-compare-open">Compare Mode (0/2)</button>
-  <button class="btn-compare-toggle" id="btn-export-csv" style="background:var(--panel2);border-color:var(--line);">📥 Export CSV</button>
-  <span class="count" id="rowcount"></span>
-</section>
-<p class="hint">Click a column header to sort. Click any row to inspect its full model decomposition, peer listing odds, and actionable costed farm plan.</p>
-<noscript><p class="hint">This board needs JavaScript: all figures are rendered from the generated data file.</p></noscript>
-
-<main>
-  <table id="board">
-    <thead>
-      <tr>
-        <th data-key="rank">Rank</th>
-        <th data-key="name">Protocol</th>
-        <th data-key="category">Category</th>
-        <th data-key="tvl_usd" class="num">TVL</th>
-        <th data-key="change_7d" class="num">7d %</th>
-        <th data-key="ageDays" class="num">Age (yrs)</th>
-        <th data-key="peer" class="num">Peer record</th>
-        <th data-key="implied_value_usd" class="num">Implied FDV</th>
-        <th data-key="est_airdrop_usd" class="num">Est. Airdrop</th>
-        <th data-key="verdict">Verdict</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-
-  <section id="detail" class="detail hidden" aria-live="polite"></section>
-</main>
-
-<footer class="foot">
-  <div class="foot-left">
-    <p><strong>✔ 7/7 SCORER CHECKS PASSED:</strong> 104/104 Priority Watchlist (40/40 Core Sealed) · Strictly Descending Values (1..262) · 758 Universe Accounting · Zero Network Dependencies</p>
-    <p class="foot-sub">Farm plans are costed estimates built from category archetypes, not promises of an airdrop. Implied values are model claims with the error bars stated above.</p>
-  </div>
-</footer>
+</div>
 
 <script src="../data.js"></script>
 <script src="app.js"></script>

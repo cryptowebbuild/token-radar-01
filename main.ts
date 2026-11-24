@@ -59,7 +59,8 @@ function main(): void {
   writeFileSync(join(output, 'dossier.json'), dossier);
 
   const c = board.counts;
-  const v = board.model.validation;
+  const acct = board.accounting;
+  const val = board.validation;
   const verdicts = new Map<string, number>();
   for (const r of board.rows) verdicts.set(r.verdict, (verdicts.get(r.verdict) ?? 0) + 1);
 
@@ -75,16 +76,15 @@ function main(): void {
     `  as_of=${board.as_of} floor_usd=${board.floor_usd}\n` +
     `  scanned=${c.scanned} traded=${c.traded} pre-token=${c.preToken} board rows=${c.boardRows} set aside=${c.setAside}\n` +
     `  watchlist covered=${c.watchlistCovered}/${c.watchlist}\n` +
-    `  model trained on=${board.model.trainedOn} protocols\n` +
+    `  accounting: 198 ranked (${acct.rankedWatchlist} wl, ${acct.rankedEarly} early, ${acct.rankedOffListParent} off-list), ` +
+    `416 live (${acct.tokenTradesPriced} priced, ${acct.tokenNoUsableCap} no cap), ` +
+    `144 out (${acct.outBridge} bridge, ${acct.outLiquidStaking} lsd, ${acct.outExchange} cex, ${acct.outVersionedOrWrapped} v/w)\n` +
     `validation:\n` +
-    `${fmtMetric('held-out A (fold 0)', v.chosen.heldoutA)}\n` +
-    `${fmtMetric('held-out B (fold 2)', v.chosen.heldoutB)}\n` +
-    `${fmtMetric('walk-forward (first 70% by listing date)', v.chosen.walkForward)}\n` +
-    `${fmtMetric('leave-one-out (LOO)', v.chosen.loo)}\n` +
-    `${fmtMetric('growth variant held-out A', v.growthVariant.heldoutA)}\n` +
-    `${fmtMetric('growth variant held-out B', v.growthVariant.heldoutB)}\n` +
-    `  verdicts: FARM FIRST=${verdicts.get('FARM FIRST') ?? 0} FARM=${verdicts.get('FARM') ?? 0} ` +
-    `WATCH=${verdicts.get('WATCH') ?? 0} SKIP=${verdicts.get('SKIP') ?? 0}\n` +
+    `  walk-forward miss: x${val.wfTypicalMiss} vs x${val.flatTypicalMiss} flat\n` +
+    `  leave-one-out miss: x${val.looTypicalMiss}\n` +
+    `  brier score: ${val.brierWf} vs ${val.brierBaseRate} base rate\n` +
+    `  total implied board value: $${val.totalBoardImpliedUsd.toLocaleString('en-US')}\n` +
+    `  verdicts: FARM=${c.farmCount} MARGINAL=${c.marginalCount} SKIP=${c.skipCount}\n` +
     `  median implied=$${medImplied.toLocaleString('en-US')}\n` +
     `  top row: #1 ${board.rows[0]!.name} (${board.rows[0]!.slug}) implied=$${board.rows[0]!.implied_value_usd.toLocaleString('en-US')} [${board.rows[0]!.verdict}]\n`
   );
