@@ -15,10 +15,20 @@
       <p class="sub">Pre-token protocols, priced by an OLS log-log model fitted on protocols that already trade. Snapshot as of <span id="asof">—</span>.</p>
     </div>
   </div>
+  <div class="palette-bar">
+    <span class="palette-label">Palette:</span>
+    <button class="palette-btn active" data-theme="dark">Cyber</button>
+    <button class="palette-btn" data-theme="terminal">Terminal</button>
+    <button class="palette-btn" data-theme="sapphire">Sapphire</button>
+    <button class="palette-btn" data-theme="light">Light</button>
+  </div>
 </header>
 
 <section class="integrity" id="integrity">
-  <h2>How this board earns trust</h2>
+  <h2>Model Specification &amp; Out-of-Sample Audit</h2>
+  <div class="equation-box">
+    log₁₀(Implied FDV) = 3.602 + 0.479·log₁₀(TVL) - 0.096·log₁₀(Age) + 0.086·log₁₀(Chains) + GrowthTerm + CategoryOffset
+  </div>
   <p>The pricing model is fitted on <strong id="trained-on">—</strong> already-traded protocols
   (log-log OLS on TVL, age, chain count, and bounded 7d growth, plus an empirical Bayesian category shrinkage offset).
   Out of sample it is honest about its error: held-out A typical multiple <strong id="val-a">—</strong>,
@@ -31,6 +41,59 @@
   + <span id="acct-board">—</span> on this board + <span id="acct-aside">—</span> set aside
   (wrapped / staked / bridged / versioned / exchange-branded names and excluded categories).
   Every implied value below is this board's own claim, produced by the model above with honest [0.5x, 2.0x] prediction intervals.</p>
+</section>
+
+<section class="sandbox-card" id="sandbox">
+  <div class="sandbox-head">
+    <h3>⚡ Interactive Valuation Sandbox (Live Formula Explorer)</h3>
+    <button class="close-btn" id="sandbox-reset" style="float:none;">Reset to Default</button>
+  </div>
+  <div class="sandbox-grid">
+    <div class="slider-group">
+      <label><span>TVL ($USD)</span> <span class="slider-val" id="sb-tvl-txt">$250M</span></label>
+      <input type="range" id="sb-tvl" min="5" max="3000" step="5" value="250">
+    </div>
+    <div class="slider-group">
+      <label><span>7-Day Growth</span> <span class="slider-val" id="sb-growth-txt">+12.0%</span></label>
+      <input type="range" id="sb-growth" min="-60" max="120" step="1" value="12">
+    </div>
+    <div class="slider-group">
+      <label><span>Protocol Age</span> <span class="slider-val" id="sb-age-txt">1.5 yrs (550d)</span></label>
+      <input type="range" id="sb-age" min="30" max="1825" step="15" value="550">
+    </div>
+    <div class="slider-group">
+      <label><span>Chains Count</span> <span class="slider-val" id="sb-chains-txt">3 chains</span></label>
+      <input type="range" id="sb-chains" min="1" max="20" step="1" value="3">
+    </div>
+    <div class="slider-group">
+      <label><span>Category</span></label>
+      <select id="sb-cat"></select>
+    </div>
+  </div>
+  <div class="sandbox-result">
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;">Simulated Implied Valuation</div>
+      <div class="res-val" id="sb-res-val">$184,200,000</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;">Verdict &amp; Band</div>
+      <div style="margin-top:2px;">
+        <span class="badge ff" id="sb-badge">FARM FIRST</span>
+        <span style="font-size:12px;color:var(--muted);margin-left:8px;" id="sb-band">[$92M – $368M]</span>
+      </div>
+    </div>
+    <div class="res-terms" id="sb-terms-txt">
+      terms: int=3.602, tvl=4.026, age=-0.263, chg=+0.025, chn=0.041, cat=+0.046 → sum=7.477
+    </div>
+  </div>
+</section>
+
+<section class="compare-modal hidden" id="compare-modal">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3 style="margin:0;font-size:16px;color:var(--blue);font-weight:700;text-transform:uppercase;">Protocol Side-by-Side Comparison</h3>
+    <button class="close-btn" id="compare-close" style="float:none;">close</button>
+  </div>
+  <div class="compare-grid" id="compare-content"></div>
 </section>
 
 <section class="kpis" id="kpis">
@@ -52,6 +115,7 @@
     <option>SKIP</option>
   </select>
   <label class="check"><input type="checkbox" id="watchonly"> Watchlist only (40)</label>
+  <button class="btn-compare-toggle" id="btn-compare-open">Compare Mode (0/2)</button>
   <span class="count" id="rowcount"></span>
 </section>
 <p class="hint">Click a column header to sort. Click any row to inspect its full model decomposition, peer listing odds, and actionable costed farm plan.</p>
